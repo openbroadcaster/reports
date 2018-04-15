@@ -1,0 +1,44 @@
+<h1>SoundExchange Reporting</h1>
+
+<obwidget type="message" id="sx_reporting_message"></obwidget>
+
+<fieldset>
+  <legend>Generate SX Report</legend>
+
+  <div class="fieldrow">
+    <label class="required">Player</label>
+    <select id="sx_reporting_device"></select>
+  </div>
+  
+  <div class="fieldrow">
+    <label class="required">Media Category</label>
+    <select id="sx_reporting_media_category"><option value="">All Categories</option></select>
+  </div>
+
+  <div class="fieldrow">
+    <label class="required">Start Date (inclusive)</label>
+    <input id="sx_reporting_start" type="text">
+  </div>
+  
+  <div class="fieldrow">
+    <label class="required">End Date (inclusive)</label>
+    <input id="sx_reporting_end" type="text">
+  </div>
+
+  <div class="fieldrow">
+    <label>Name of Service</label>
+    <input id="sx_reporting_service_name" type="text">
+  </div>
+  
+  <div class="fieldrow">
+    <label>Transmission Category (A-L)</label>
+    <input id="sx_reporting_transmission_category" type="text" maxlength="1">
+  </div>
+</fieldset>
+
+<fieldset>
+<div class="fieldrow">
+  <button class="add" onclick="OBModules.SxReporting.generate();">Generate Report</button>
+  <a class="button" id="sx_reporting_file" style="display: none;">Download Report</a>
+</div>
+</fieldset>
