@@ -10,11 +10,14 @@ class SxReporting extends OBFController
     
     $data = [
       'device_id' => $this->data('device'),
-      'start' => $this->data('start'),
-      'end' => $this->data('end'),
-      'service_name' => $this->data('service_name'),
-      'transmission_category' => $this->data('transmission_category'),
-      'media_category' => $this->data('media_category')
+      'start' => trim($this->data('start')),
+      'end' => trim($this->data('end')),
+      'service_name' => trim($this->data('service_name')),
+      'transmission_category' => trim($this->data('transmission_category')),
+      'media_category' => $this->data('media_category'),
+      'isrc' => $this->data('isrc'),
+      'label' => $this->data('label'),
+      'tuning_hours' => trim($this->data('tuning_hours'))
     ];
     
     $validation = $reporting_model('validate',$data);

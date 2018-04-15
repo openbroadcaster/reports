@@ -28,6 +28,16 @@ OBModules.SxReporting = new function()
       $.each(OB.Settings.categories,function(index,category) {
         $('#sx_reporting_media_category').append('<option value="'+category.id+'">'+htmlspecialchars(category.name)+'</option>');
       });
+      
+      // add metadata field options for isrc and marketing label
+      $.each(OB.Settings.media_metadata, function(index,metadata) {
+        $('#sx_reporting_isrc').add('#sx_reporting_label').append( $('<option></option>').text(metadata.description).attr('value',metadata.name) );
+      });
+      
+      // take an educated guess at metadata field options
+      if($('#sx_reporting_isrc option[value=isrc]')) $('#sx_reporting_isrc').val('isrc');
+      if($('#sx_reporting_label option[value=marketing_label]')) $('#sx_reporting_label').val('marketing_label');
+      else if($('#sx_reporting_label option[value=label]')) $('#sx_reporting_label').val('label');
     });
   }
   
@@ -43,7 +53,10 @@ OBModules.SxReporting = new function()
     post.service_name = $('#sx_reporting_service_name').val();
     post.transmission_category = $('#sx_reporting_transmission_category').val();
     post.media_category = $('#sx_reporting_media_category').val();
-      
+    post.isrc = $('#sx_reporting_isrc').val();
+    post.label = $('#sx_reporting_label').val();
+    post.tuning_hours = $('#sx_reporting_tuning_hours').val();
+    
     OB.API.post('sxreporting','generate',post,function(response)
     {
       

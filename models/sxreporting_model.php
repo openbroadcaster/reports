@@ -16,6 +16,12 @@ class SxReportingModel extends OBFModel
     if(!$end) return [false,'End date not valid.'];
     if(!$start>=$end) return [false,'Start time must be before end time.'];
     
+    $media_metadata_model = $this->load->model('MediaMetadata');
+    if($data['isrc'] && !$media_metadata_model('get_by_name',$data['isrc'])) return [false,'ISRC field is not valid.'];
+    if($data['label'] && !$media_metadata_model('get_by_name',$data['label'])) return [false,'Marketing Label field is not valid.'];
+    
+    if($data['tuning_hours']!='' && !preg_match('/^[0-9]+$/',$data['tuning_hours'])) return [false,'Tuning hours must be a number.'];
+    
     return [true,'Valid.'];
   }
   
@@ -54,11 +60,16 @@ class SxReportingModel extends OBFModel
     foreach($frequency as $media_id=>$frequency)
     {
       // try to get media info from regular media table
-      $this->db->what('artist');
-      $this->db->what('title');
-      $this->db->what('album');
-      $this->db->what('category_id');
-      $this->db->where('id',$media_id);
+      $this->db->what('media.artist','artist');
+      $this->db->what('media.title','title');
+      $this->db->what('media.album','album');
+      $this->db->what('media.category_id','category_id');
+      
+      if($data['isrc']) $this->db->what('media_metadata.'.$data['isrc'],'isrc');
+      if($data['label']) $this->db->what('media_metadata.'.$data['label'],'label');
+      
+      $this->db->where('media.id',$media_id);
+      $this->db->leftjoin('media_metadata','media.id','media_metadata.media_id');
       $item = $this->db->get_one('media');
       
       // media item not found? try deleted media table
@@ -72,6 +83,8 @@ class SxReportingModel extends OBFModel
         
         // set item to deleted item metadata
         $item = json_decode($item['metadata'], true);
+        if(isset($item['metadata_'.$data['isrc']])) $item['isrc'] = $item['metadata_'.$data['isrc']];
+        if(isset($item['metadata_'.$data['label']])) $item['label'] = $item['metadata_'.$data['label']];
       }
       
       // do we have a category set for this item? if so, make sure matches category specified for report.
@@ -83,12 +96,12 @@ class SxReportingModel extends OBFModel
         $data['transmission_category'],
         isset($item['artist']) ? $item['artist'] : '',
         isset($item['title']) ? $item['title'] : '',
-        '',
+        isset($item['isrc']) ? $item['isrc'] : '',
         isset($item['album']) ? $item['album'] : '',
+        isset($item['label']) ? $item['label'] : '',
         '',
-        '',
-        '',
-        '',
+        $data['tuning_hours'],
+        $data['service_name'],
         $frequency
       ];
     }
@@ -150,8 +163,8 @@ class SxReportingModel extends OBFModel
         '',
         '',
         '',
-        '',
-        '',
+        $data['tuning_hours'],
+        $data['service_name'],
         $frequency
       ];
     }
