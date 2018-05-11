@@ -25,6 +25,8 @@ class SxReporting extends OBFController
     
     $report_csv = $reporting_model('generate',$data);
     
-    return array(true,'Report generated. Click the download button below.',$report_csv);
+    if($report_csv[1]==0) return [false,'No log data found for this reporting period.'];
+    
+    return array(true,'Report generated ('.$report_csv[1].' items). Click the download button below.',$report_csv[0]);
   }
 }

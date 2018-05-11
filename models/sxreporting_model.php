@@ -119,6 +119,8 @@ class SxReportingModel extends OBFModel
     });
     
     // create CSV file
+    $row_count = 0;
+    
     $fh = fopen('php://temp','w+');
     
     fputcsv($fh, [
@@ -135,7 +137,7 @@ class SxReportingModel extends OBFModel
       'PLAY_FREQUENCY'
     ]);
     
-    foreach($rows as $row) fputcsv($fh, $row);
+    foreach($rows as $row) { fputcsv($fh, $row); $row_count++; }
     
     // get playlog entries with a title or artist, but no media_id and add to end of our report
     $this->db->query('SELECT artist, title FROM playlog WHERE (artist!="" OR title!="") AND context!="emerg" AND media_id=0 AND device_id = '.$device['id'].' AND timestamp BETWEEN '.$start_timestamp.' AND '.$end_timestamp);
@@ -181,13 +183,13 @@ class SxReportingModel extends OBFModel
       else return strcmp($artist_a,$artist_b);
     });
     
-    foreach($rows as $row) fputcsv($fh, $row);
+    foreach($rows as $row) { fputcsv($fh, $row); $row_count++; }
     
     // get CSV file data for return
     $csv = stream_get_contents($fh, -1, 0);
     
     fclose($fh);
     
-    return $csv;
+    return [$csv, $row_count];
   }
 }
