@@ -140,7 +140,7 @@ class SxReportingModel extends OBFModel
     foreach($rows as $row) { fputcsv($fh, $row); $row_count++; }
     
     // get playlog entries with a title or artist, but no media_id and add to end of our report
-    $this->db->query('SELECT artist, title FROM playlog WHERE (artist!="" OR title!="") AND context="fallback" AND media_id=0 AND device_id = '.$device['id'].' AND timestamp BETWEEN '.$start_timestamp.' AND '.$end_timestamp);
+    $this->db->query('SELECT artist, title FROM playlog WHERE (artist!="" OR title!="") AND (artist!="unknown" OR title!="unknown") AND context="fallback" AND media_id=0 AND device_id = '.$device['id'].' AND timestamp BETWEEN '.$start_timestamp.' AND '.$end_timestamp);
     
     $frequency = [];
     while($row = $this->db->assoc_row())
