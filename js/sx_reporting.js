@@ -32,6 +32,7 @@ OBModules.SxReporting = new function()
       // add metadata field options for isrc and marketing label
       $.each(OB.Settings.media_metadata, function(index,metadata) {
         $('#sx_reporting_isrc').add('#sx_reporting_label').append( $('<option></option>').text(metadata.description).attr('value',metadata.name) );
+        $('#sx_reporting_additional_fields').append( $('<option></option>').text(metadata.description).attr('value','metadata_'+metadata.name) );  
       });
       
       // take an educated guess at metadata field options
@@ -56,6 +57,7 @@ OBModules.SxReporting = new function()
     post.isrc = $('#sx_reporting_isrc').val();
     post.label = $('#sx_reporting_label').val();
     post.tuning_hours = $('#sx_reporting_tuning_hours').val();
+    post.additional_fields = $('#sx_reporting_additional_fields').val();
     
     OB.API.post('sxreporting','generate',post,function(response)
     {

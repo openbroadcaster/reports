@@ -17,8 +17,32 @@ class SxReportingModel extends OBFModel
     if(!$start>=$end) return [false,'Start time must be before end time.'];
     
     $media_metadata_model = $this->load->model('MediaMetadata');
+    
     if($data['isrc'] && !$media_metadata_model('get_by_name',$data['isrc'])) return [false,'ISRC field is not valid.'];
     if($data['label'] && !$media_metadata_model('get_by_name',$data['label'])) return [false,'Marketing Label field is not valid.'];
+
+    $allowed_additional = [
+      'year',
+      'category_name',
+      'genre_name',
+      'country_name',
+      'language_name',
+      'comments',
+      'duration'
+    ];
+
+    $all_metadata_fields = $media_metadata_model('get_all');
+
+    foreach($all_metadata_fields as $field)
+    {
+      $allowed_additional[] = 'metadata_'.$field['name'];
+    }
+
+    if(is_array($data['additional_fields']))
+    {
+      foreach($data['additional_fields'] as $field_name) 
+        if(array_search($field_name,$allowed_additional)===false) return [false,'One or more additional fields are not valid.'];
+    }
     
     if($data['tuning_hours']!='' && !preg_match('/^[0-9]+$/',$data['tuning_hours'])) return [false,'Tuning hours must be a number.'];
     
@@ -27,6 +51,8 @@ class SxReportingModel extends OBFModel
   
   public function generate($data)
   {
+    $media_metadata_model = $this->load->model('MediaMetadata');
+  
     // get device timezone
     $devices_model = $this->load->model('devices');
     $device = $devices_model('get_one',$data['device_id']);
@@ -57,6 +83,13 @@ class SxReportingModel extends OBFModel
     $data['service_name'] = trim($data['service_name']);
     $data['transmission_category'] = trim($data['transmission_category']);
     
+    // if we have 'comments' in additional fields, move it to the end.
+    if(is_array($data['additional_fields']) && ($comments_index = array_search('comments',$data['additional_fields']))!==FALSE)
+    {
+      unset($data['additional_fields'][$comments_index]);
+      $data['additional_fields'][]='comments';
+    }
+    
     foreach($frequency as $media_id=>$frequency)
     {
       // try to get media info from regular media table
@@ -67,6 +100,40 @@ class SxReportingModel extends OBFModel
       
       if($data['isrc']) $this->db->what('media_metadata.'.$data['isrc'],'isrc');
       if($data['label']) $this->db->what('media_metadata.'.$data['label'],'label');
+      
+      // get additional field info from database
+      if(is_array($data['additional_fields'])) foreach($data['additional_fields'] as $additional_field)
+      {
+        if($additional_field=='year') $this->db->what('media.year','year');
+        elseif($additional_field=='comments') $this->db->what('media.comments','comments');
+        elseif($additional_field=='duration') $this->db->what('media.duration','duration');
+        elseif($additional_field=='category_name')
+        {
+          $this->db->what('media_categories.name','category_name');
+          $this->db->leftjoin('media_categories','media.category_id','media_categories.id');
+        }
+        elseif($additional_field=='genre_name')
+        {
+          $this->db->what('media_genres.name','genre_name');
+          $this->db->leftjoin('media_genres','media.genre_id','media_genres.id');
+        }
+        elseif($additional_field=='country_name')
+        {
+          $this->db->what('media_countries.name','country_name');
+          $this->db->leftjoin('media_countries','media.country_id','media_countries.id');
+        }
+        elseif($additional_field=='language_name')
+        {
+          $this->db->what('media_languages.name','language_name');
+          $this->db->leftjoin('media_languages','media.language_id','media_languages.id');
+        }
+        
+        elseif(strpos($additional_field,'metadata_')===0)
+        {
+          $metadata_field_name = substr($additional_field,9);
+          $this->db->what('media_metadata.'.$metadata_field_name,$additional_field);
+        }
+      }
       
       $this->db->where('media.id',$media_id);
       $this->db->leftjoin('media_metadata','media.id','media_metadata.media_id');
@@ -91,7 +158,7 @@ class SxReportingModel extends OBFModel
       if($data['media_category'] && $item['category_id'] && $item['category_id']!=$data['media_category']) continue;
     
       // add csv row
-      $rows[] = [
+      $row = [
         $data['service_name'],
         $data['transmission_category'],
         isset($item['artist']) ? $item['artist'] : '',
@@ -104,6 +171,17 @@ class SxReportingModel extends OBFModel
         $data['service_name'],
         $frequency
       ];
+      
+      // add additional field info to row
+      if(is_array($data['additional_fields'])) 
+      {
+        foreach($data['additional_fields'] as $additional_field)
+        {
+          $row[] = isset($item[$additional_field]) ? $item[$additional_field] : '';
+        }
+      }
+      
+      $rows[] = $row;
     }
     
     // sort csv rows by artist, title
@@ -123,7 +201,7 @@ class SxReportingModel extends OBFModel
     
     $fh = fopen('php://temp','w+');
     
-    fputcsv($fh, [
+    $headings = [
       'NAME_OF_SERVICE',
       'TRANSMISSION_CATEGORY',
       'FEATURED_ARTIST',
@@ -135,7 +213,33 @@ class SxReportingModel extends OBFModel
       'AGGREGATE_TUNING_HOURS',
       'CHANNEL_OR_PROGRAM_NAME',
       'PLAY_FREQUENCY'
-    ]);
+    ];
+    
+    // add additional field headings
+    $additional_fields = [
+      'year'=>'YEAR',
+      'category_name'=>'CATEGORY',
+      'genre_name'=>'GENRE',
+      'country_name'=>'COUNTRY',
+      'language_name'=>'LANGUAGE',
+      'comments'=>'COMMENTS',
+      'duration'=>'DURATION (SECONDS)'
+    ];
+    
+    if(is_array($data['additional_fields'])) 
+    {
+      foreach($data['additional_fields'] as $field)
+      {
+        if(strpos($field,'metadata_')===0) 
+        {
+          $metadata_field = $media_metadata_model('get_by_name',substr($field,9));
+          $headings[] = strtoupper($metadata_field['description']);
+        }
+        else $headings[] = $additional_fields[$field];
+      }
+    }
+  
+    fputcsv($fh, $headings);
     
     foreach($rows as $row) { fputcsv($fh, $row); $row_count++; }
     

@@ -2,3 +2,14 @@
 {
   width: 225px;
 }
+
+#sx_reporting_additional_fields
+{
+  height: 150px;
+}
+
+#sx_reporting_additional_fields_fieldrow label
+{
+  vertical-align: top;
+  padding-top: 3px;
+}

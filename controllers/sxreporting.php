@@ -17,7 +17,8 @@ class SxReporting extends OBFController
       'media_category' => $this->data('media_category'),
       'isrc' => $this->data('isrc'),
       'label' => $this->data('label'),
-      'tuning_hours' => trim($this->data('tuning_hours'))
+      'tuning_hours' => trim($this->data('tuning_hours')),
+      'additional_fields' => $this->data('additional_fields')
     ];
     
     $validation = $reporting_model('validate',$data);
