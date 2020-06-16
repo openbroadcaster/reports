@@ -6,8 +6,6 @@ title: index
 * TOC
 {:toc}
 
-<a name="dashboard"></a>
-
 ## Sound Exchange Reports
 
 Log analysis and royality reports for Sound Exchange, SOCAN
