@@ -4,10 +4,10 @@ class SxReportingModel extends OBFModel
 {
   public function validate($data)
   {
-    // make sure device id valid
-    $devices_model = $this->load->model('devices');
-    $device = $devices_model('get_one',$data['device_id']);
-    if(!$device) return [false,'Player not valid.'];
+    // make sure player id valid
+    $players_model = $this->load->model('players');
+    $player = $players_model('get_one',$data['player_id']);
+    if(!$player) return [false,'Player not valid.'];
     
     // start/end validate
     $start = DateTime::createFromFormat('Y-m-d',$data['start']);
@@ -53,10 +53,10 @@ class SxReportingModel extends OBFModel
   {
     $media_metadata_model = $this->load->model('MediaMetadata');
   
-    // get device timezone
-    $devices_model = $this->load->model('devices');
-    $device = $devices_model('get_one',$data['device_id']);
-    $timezone = new DateTimeZone($device['timezone']);
+    // get player timezone
+    $players_model = $this->load->model('players');
+    $player = $players_model('get_one',$data['player_id']);
+    $timezone = new DateTimeZone($player['timezone']);
     
     // get start/end times
     $start = DateTime::createFromFormat('Y-m-d H:i:s',$data['start'].' 00:00:00',$timezone);
@@ -67,7 +67,7 @@ class SxReportingModel extends OBFModel
     $end_timestamp = $end->getTimestamp().'.99';
     
     // get media for which we have a media item assigned
-    $this->db->query('SELECT media_id FROM playlog WHERE media_id!=0 AND device_id = '.$device['id'].' AND timestamp BETWEEN '.$start_timestamp.' AND '.$end_timestamp);
+    $this->db->query('SELECT media_id FROM playlog WHERE media_id!=0 AND player_id = '.$player['id'].' AND timestamp BETWEEN '.$start_timestamp.' AND '.$end_timestamp);
     
     $frequency = [];
     while($row = $this->db->assoc_row())
@@ -244,7 +244,7 @@ class SxReportingModel extends OBFModel
     foreach($rows as $row) { fputcsv($fh, $row); $row_count++; }
     
     // get playlog entries with a title or artist, but no media_id and add to end of our report
-    $this->db->query('SELECT artist, title FROM playlog WHERE (artist!="" OR title!="") AND (artist!="unknown" OR title!="unknown") AND context="fallback" AND media_id=0 AND device_id = '.$device['id'].' AND timestamp BETWEEN '.$start_timestamp.' AND '.$end_timestamp);
+    $this->db->query('SELECT artist, title FROM playlog WHERE (artist!="" OR title!="") AND (artist!="unknown" OR title!="unknown") AND context="fallback" AND media_id=0 AND player_id = '.$player['id'].' AND timestamp BETWEEN '.$start_timestamp.' AND '.$end_timestamp);
     
     $frequency = [];
     while($row = $this->db->assoc_row())

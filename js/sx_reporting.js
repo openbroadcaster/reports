@@ -17,12 +17,12 @@ OBModules.SxReporting = new function()
     $('#sx_reporting_start').datepicker({ dateFormat: "yy-mm-dd" });
     $('#sx_reporting_end').datepicker({ dateFormat: "yy-mm-dd" });
     
-    OB.API.post('device','device_list', {}, function(data)
+    OB.API.post('player','player_list', {}, function(data)
     {
-      var devices = data.data;
+      var players = data.data;
 
-      $.each(devices,function(index,item) {
-        $('#sx_reporting_device').append('<option value="'+item.id+'">'+htmlspecialchars(item.name)+'</option>');
+      $.each(players,function(index,item) {
+        $('#sx_reporting_player').append('<option value="'+item.id+'">'+htmlspecialchars(item.name)+'</option>');
       });
       
       $.each(OB.Settings.categories,function(index,category) {
@@ -48,7 +48,7 @@ OBModules.SxReporting = new function()
     $('#sx_reporting_file').hide();
   
     var post = {};
-    post.device = $('#sx_reporting_device').val();
+    post.player = $('#sx_reporting_player').val();
     post.start = $('#sx_reporting_start').val();
     post.end = $('#sx_reporting_end').val();
     post.service_name = $('#sx_reporting_service_name').val();

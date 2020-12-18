@@ -9,7 +9,7 @@ class SxReporting extends OBFController
     $reporting_model = $this->load->model('SxReporting');
     
     $data = [
-      'device_id' => $this->data('device'),
+      'player_id' => $this->data('player'),
       'start' => trim($this->data('start')),
       'end' => trim($this->data('end')),
       'service_name' => trim($this->data('service_name')),
