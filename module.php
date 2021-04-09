@@ -3,8 +3,8 @@
 class SxReportingModule extends OBFModule
 {
 
-	public $name = 'SX Reporting v1.0';
-	public $description = 'Reporting module for SoundExchange.';
+	public $name = 'Reporting v1.0';
+	public $description = 'Reporting module for SOCAN and SoundExchange.';
 
 	public function callbacks()
 	{
