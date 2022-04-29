@@ -17,8 +17,9 @@ OBModules.SxReporting = new function()
     $('#sx_reporting_start').datepicker({ dateFormat: "yy-mm-dd" });
     $('#sx_reporting_end').datepicker({ dateFormat: "yy-mm-dd" });
     
-    OB.API.post('player','player_list', {}, function(data)
+    OB.API.post('player','search', {}, function(data)
     {
+    
       var players = data.data;
 
       $.each(players,function(index,item) {
