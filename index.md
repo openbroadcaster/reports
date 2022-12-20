@@ -3,10 +3,11 @@ layout: default
 title: index
 ---
 
+# Sound Exchange Reports
+{:.no_toc}
+
 * TOC
 {:toc}
-
-## Sound Exchange Reports
 
 ![ Reports](img/reports.png){: .Reports}
 
