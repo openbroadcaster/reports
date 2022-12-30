@@ -2,6 +2,9 @@
 layout: default
 title: index
 ---
+<br/>
+
+![report](https://user-images.githubusercontent.com/4603894/210111777-65c926bb-32d4-4f4c-99cf-b31fd5dcdec2.png)
 
 # Sound Exchange Reports
 {:.no_toc}
