@@ -4,7 +4,7 @@ title: index
 ---
 <br/>
 
-![report](https://user-images.githubusercontent.com/4603894/210111777-65c926bb-32d4-4f4c-99cf-b31fd5dcdec2.png)
+![report](https://user-images.githubusercontent.com/4603894/210111881-6f7f2a59-7dfb-45b6-9ffe-93934474e649.png)
 
 # Sound Exchange Reports
 {:.no_toc}
