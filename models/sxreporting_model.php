@@ -5,8 +5,7 @@ class SxReportingModel extends OBFModel
   public function validate($data)
   {
     // make sure device id valid
-    $devices_model = $this->load->model('devices');
-    $device = $devices_model('get_one',$data['device_id']);
+    $device = $this->models->players('get_one',$data['device_id']);
     if(!$device) return [false,'Player not valid.'];
     
     // start/end validate
@@ -16,10 +15,8 @@ class SxReportingModel extends OBFModel
     if(!$end) return [false,'End date not valid.'];
     if(!$start>=$end) return [false,'Start time must be before end time.'];
     
-    $media_metadata_model = $this->load->model('MediaMetadata');
-    
-    if($data['isrc'] && !$media_metadata_model('get_by_name',$data['isrc'])) return [false,'ISRC field is not valid.'];
-    if($data['label'] && !$media_metadata_model('get_by_name',$data['label'])) return [false,'Marketing Label field is not valid.'];
+    if($data['isrc'] && !$this->models->mediametadata('get_by_name',$data['isrc'])) return [false,'ISRC field is not valid.'];
+    if($data['label'] && !$this->models->mediametadata('get_by_name',$data['label'])) return [false,'Marketing Label field is not valid.'];
 
     $allowed_additional = [
       'year',
@@ -31,7 +28,7 @@ class SxReportingModel extends OBFModel
       'duration'
     ];
 
-    $all_metadata_fields = $media_metadata_model('get_all');
+    $all_metadata_fields = $this->models->mediametadata('get_all');
 
     foreach($all_metadata_fields as $field)
     {
@@ -50,12 +47,9 @@ class SxReportingModel extends OBFModel
   }
   
   public function generate($data)
-  {
-    $media_metadata_model = $this->load->model('MediaMetadata');
-  
+  {  
     // get device timezone
-    $devices_model = $this->load->model('devices');
-    $device = $devices_model('get_one',$data['device_id']);
+    $device = $this->models->players('get_one',$data['device_id']);
     $timezone = new DateTimeZone($device['timezone']);
     
     // get start/end times
@@ -67,7 +61,7 @@ class SxReportingModel extends OBFModel
     $end_timestamp = $end->getTimestamp().'.99';
     
     // get media for which we have a media item assigned
-    $this->db->query('SELECT media_id FROM playlog WHERE media_id!=0 AND device_id = '.$device['id'].' AND timestamp BETWEEN '.$start_timestamp.' AND '.$end_timestamp);
+    $this->db->query('SELECT media_id FROM playlog WHERE media_id!=0 AND player_id = '.$device['id'].' AND timestamp BETWEEN '.$start_timestamp.' AND '.$end_timestamp);
     
     $frequency = [];
     while($row = $this->db->assoc_row())
@@ -232,7 +226,7 @@ class SxReportingModel extends OBFModel
       {
         if(strpos($field,'metadata_')===0) 
         {
-          $metadata_field = $media_metadata_model('get_by_name',substr($field,9));
+          $metadata_field = $this->models->mediametadata('get_by_name',substr($field,9));
           $headings[] = strtoupper($metadata_field['description']);
         }
         else $headings[] = $additional_fields[$field];
@@ -244,7 +238,7 @@ class SxReportingModel extends OBFModel
     foreach($rows as $row) { fputcsv($fh, $row); $row_count++; }
     
     // get playlog entries with a title or artist, but no media_id and add to end of our report
-    $this->db->query('SELECT artist, title FROM playlog WHERE (artist!="" OR title!="") AND (artist!="unknown" OR title!="unknown") AND context="fallback" AND media_id=0 AND device_id = '.$device['id'].' AND timestamp BETWEEN '.$start_timestamp.' AND '.$end_timestamp);
+    $this->db->query('SELECT artist, title FROM playlog WHERE (artist!="" OR title!="") AND (artist!="unknown" OR title!="unknown") AND context="fallback" AND media_id=0 AND player_id = '.$device['id'].' AND timestamp BETWEEN '.$start_timestamp.' AND '.$end_timestamp);
     
     $frequency = [];
     while($row = $this->db->assoc_row())

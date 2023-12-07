@@ -17,7 +17,7 @@ OBModules.SxReporting = new function()
     $('#sx_reporting_start').datepicker({ dateFormat: "yy-mm-dd" });
     $('#sx_reporting_end').datepicker({ dateFormat: "yy-mm-dd" });
     
-    OB.API.post('device','device_list', {}, function(data)
+    OB.API.post('player','search', {}, function(data)
     {
       var devices = data.data;
 

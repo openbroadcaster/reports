@@ -6,8 +6,6 @@ class SxReporting extends OBFController
   {
     $this->user->require_permission('sx_reporting_module');
     
-    $reporting_model = $this->load->model('SxReporting');
-    
     $data = [
       'device_id' => $this->data('device'),
       'start' => trim($this->data('start')),
@@ -21,10 +19,10 @@ class SxReporting extends OBFController
       'additional_fields' => $this->data('additional_fields')
     ];
     
-    $validation = $reporting_model('validate',$data);
+    $validation = $this->models->sxreporting('validate',$data);
     if($validation[0]==false) return $validation;
     
-    $report_csv = $reporting_model('generate',$data);
+    $report_csv = $this->models->sxreporting('generate',$data);
     
     if($report_csv[1]==0) return [false,'No log data found for this reporting period.'];
     
