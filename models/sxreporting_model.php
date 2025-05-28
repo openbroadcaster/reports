@@ -129,15 +129,14 @@ class SxReportingModel extends OBFModel
           $this->db->leftjoin('languages','media.language','languages.language_id');
         }
 
-        /*elseif(strpos($additional_field,'metadata_')===0)
+        elseif(strpos($additional_field,'metadata_')===0)
         {
           $metadata_field_name = substr($additional_field,9);
-          $this->db->what('media_metadata.'.$metadata_field_name,$additional_field);
-        }*/
+          $this->db->what('media.metadata_'.$metadata_field_name,$additional_field);
+        }
       }
 
       $this->db->where('media.id',$media_id);
-      //$this->db->leftjoin('media_metadata','media.id','media_metadata.media_id');
       $item = $this->db->get_one('media');
 
       // media item not found? try deleted media table
