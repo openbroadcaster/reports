@@ -6,7 +6,7 @@ title: index
 
 ![report](https://user-images.githubusercontent.com/4603894/210111881-6f7f2a59-7dfb-45b6-9ffe-93934474e649.png)
 
-# Sound Exchange Reports
+# SOCAN Sound Exchange Reports #
 {:.no_toc}
 
 * TOC
