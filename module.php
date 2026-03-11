@@ -1,6 +1,8 @@
 <?php
 
-class SxReportingModule extends OBFModule
+use OpenBroadcaster\Base\Module;
+
+class SxReportingModule extends Module
 {
 
 	public $name = 'Reporting v1.0';
@@ -19,7 +21,7 @@ class SxReportingModule extends OBFModule
         'description'=>'sx reporting module',
         'name'=>'sx_reporting_module'
       ]);
-      
+
       return true;
 	}
 
@@ -28,13 +30,13 @@ class SxReportingModule extends OBFModule
       // remove permissions data for this module
       $this->db->where('name','sx_reporting_module');
       $permission = $this->db->get_one('users_permissions');
-      
+
       $this->db->where('permission_id',$permission['id']);
       $this->db->delete('users_permissions_to_groups');
-      
+
       $this->db->where('id',$permission['id']);
       $this->db->delete('users_permissions');
-      
+
       return true;
 	}
 }

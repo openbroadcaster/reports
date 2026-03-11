@@ -1,6 +1,8 @@
 <?php
 
-class SxReportingModel extends OBFModel
+use OpenBroadcaster\Base\Model;
+
+class SxReportingModel extends Model
 {
   public function validate($data)
   {

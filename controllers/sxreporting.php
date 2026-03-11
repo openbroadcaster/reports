@@ -1,11 +1,13 @@
 <?php
 
-class SxReporting extends OBFController
+use OpenBroadcaster\Base\Controller;
+
+class SxReporting extends Controller
 {
   public function generate()
   {
     $this->user->require_permission('sx_reporting_module');
-    
+
     $models = OBFModels::get_instance();
 
     $data = [
